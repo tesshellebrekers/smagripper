@@ -24,8 +24,8 @@ int smaPin = 3;
 int smaMS = 700;  //number of milliseconds to send max power to sma
 
 //toggle these true or false depending what you want to test
-bool LEFT = true;
-bool RIGHT = true;
+bool LEFT = false;
+bool RIGHT = false;
 bool SMA = true;
 /**************************************************************************/
 /*
@@ -68,11 +68,13 @@ void setup(void)
   }
   delay(200);
   
-  smaStatus = false;
+  
+  if(SMA){
+    smaStatus = false;
+    pinMode(smaPin, OUTPUT);
+    digitalWrite(smaPin, LOW);
+  }
   Serial.println("Ready");
-
-  pinMode(smaPin, OUTPUT);
-  digitalWrite(smaPin, LOW);
   
 }
 
@@ -95,20 +97,19 @@ void loop(void)
   //startTime = millis();
 
   if(LEFT){
+    
+  }
+
+  if(RIGHT){
+
+  }
+
+  if(LEFT){
     imu::Vector<3> leftACC = leftBNO.getVector(Adafruit_BNO055_WIRE1::VECTOR_ACCELEROMETER);
     imu::Vector<3> leftMAG = leftBNO.getVector(Adafruit_BNO055_WIRE1::VECTOR_MAGNETOMETER);
     imu::Vector<3> leftGYR = leftBNO.getVector(Adafruit_BNO055_WIRE1::VECTOR_GYROSCOPE);
     int8_t leftTemp = leftBNO.getTemp();
-  }
-
-  if(RIGHT){
-    imu::Vector<3> rightACC = rightBNO.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
-    imu::Vector<3> rightMAG = rightBNO.getVector(Adafruit_BNO055::VECTOR_MAGNETOMETER);
-    imu::Vector<3> rightGYR = rightBNO.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
-    int8_t rightTemp = rightBNO.getTemp();
-  }
-
-  if(LEFT){
+    
   Serial.print("L\t"); //identify which sensor skin this is 
    /* Display the floating point data for acceleration*/
   Serial.print(leftACC.x()); //float
@@ -152,6 +153,12 @@ void loop(void)
   }
 
   if(RIGHT){
+
+    imu::Vector<3> rightACC = rightBNO.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
+    imu::Vector<3> rightMAG = rightBNO.getVector(Adafruit_BNO055::VECTOR_MAGNETOMETER);
+    imu::Vector<3> rightGYR = rightBNO.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
+    int8_t rightTemp = rightBNO.getTemp();
+    
   Serial.print("R\t"); //identify which sensor skin this is 
    /* Display the floating point data for acceleration*/
   Serial.print(rightACC.x()); //float
@@ -194,31 +201,34 @@ void loop(void)
   Serial.println("\t");
   delay(5);
   }
-  
-  if (stringComplete) {
-    smaStatus = inputString.toInt();
-    // clear the string:
-    inputString = "";
-    stringComplete = false;
-    if(smaStatus == 1){SMAflag = true;}
-  }
 
-  if(SMAflag)
-  {
-    startTime = millis();
-    digitalWrite(smaPin, HIGH);
-    Serial.println("SMA started");
-    SMAflag = false;
+  if(SMA){
+    if (stringComplete) {
+      smaStatus = inputString.toInt();
+      // clear the string:
+      inputString = "";
+      stringComplete = false;
+      if(smaStatus == 1){SMAflag = true;}
+    }
+
+    if(SMAflag)
+    {
+      startTime = millis();
+      digitalWrite(smaPin, HIGH);
+      Serial.println("SMA started");
+      SMAflag = false;
+    }
+    endTime = millis();
+    if((endTime-startTime)>=smaMS & smaStatus == 1)
+    {
+      digitalWrite(smaPin, LOW);
+      Serial.print("SMA ended. Duration: ");
+      Serial.println(endTime-startTime);
+      SMAflag = false;
+      smaStatus = 0;
+    }  
   }
-  endTime = millis();
-  if((endTime-startTime)>=smaMS & smaStatus == 1)
-  {
-    digitalWrite(smaPin, LOW);
-    Serial.print("SMA ended. Duration: ");
-    Serial.println(endTime-startTime);
-    SMAflag = false;
-    smaStatus = 0;
-  }
+  
   //delay(BNO055_SAMPLERATE_DELAY_MS);
   
 }
