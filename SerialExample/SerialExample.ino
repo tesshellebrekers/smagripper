@@ -21,6 +21,12 @@ String inputString = "";         // a String to hold incoming data
 bool stringComplete = false;  // whether the string is complete
 bool SMAflag = false;
 int smaPin = 3;
+int smaMS = 700;  //number of milliseconds to send max power to sma
+
+//toggle these true or false depending what you want to test
+bool LEFT = true;
+bool RIGHT = true;
+bool SMA = true;
 /**************************************************************************/
 /*
     Arduino setup function (automatically called at startup)
@@ -36,23 +42,32 @@ void setup(void)
   inputString.reserve(200);
 
   /* Initialise the sensor */
-  if(!leftBNO.begin())
-  {
-    /* There was a problem detecting the BNO055 ... check your connections */
-    Serial.print("Ooops, no left BNO055 detected ... Check your wiring or I2C ADDR!");
-    while(1);
+  if(LEFT){
+    if(!leftBNO.begin())
+    {
+      /* There was a problem detecting the BNO055 ... check your connections */
+      Serial.print("Ooops, no left BNO055 detected ... Check your wiring or I2C ADDR!");
+      while(1);
+    }
+    else
+    {
+      leftBNO.setExtCrystalUse(false);
+    }
+  } /* Initialise the sensor */
+  if(RIGHT){
+    if(!rightBNO.begin())
+    {
+      /* There was a problem detecting the BNO055 ... check your connections */
+      Serial.print("Ooops, no right BNO055 detected ... Check your wiring or I2C ADDR!");
+      while(1);
+    }
+    else
+    {
+      rightBNO.setExtCrystalUse(false); 
+    }
   }
-    /* Initialise the sensor */
-  if(!rightBNO.begin())
-  {
-    /* There was a problem detecting the BNO055 ... check your connections */
-    Serial.print("Ooops, no right BNO055 detected ... Check your wiring or I2C ADDR!");
-    while(1);
-  }
-  delay(500);
+  delay(200);
   
-  rightBNO.setExtCrystalUse(false);
-  leftBNO.setExtCrystalUse(false);
   smaStatus = false;
   Serial.println("Ready");
 
@@ -79,17 +94,21 @@ void loop(void)
 {
   //startTime = millis();
 
-  //for(int i=0; i< 1000; i++){
-  imu::Vector<3> leftACC = leftBNO.getVector(Adafruit_BNO055_WIRE1::VECTOR_ACCELEROMETER);
-  imu::Vector<3> leftMAG = leftBNO.getVector(Adafruit_BNO055_WIRE1::VECTOR_MAGNETOMETER);
-  imu::Vector<3> leftGYR = leftBNO.getVector(Adafruit_BNO055_WIRE1::VECTOR_GYROSCOPE);
-  int8_t leftTemp = leftBNO.getTemp();
+  if(LEFT){
+    imu::Vector<3> leftACC = leftBNO.getVector(Adafruit_BNO055_WIRE1::VECTOR_ACCELEROMETER);
+    imu::Vector<3> leftMAG = leftBNO.getVector(Adafruit_BNO055_WIRE1::VECTOR_MAGNETOMETER);
+    imu::Vector<3> leftGYR = leftBNO.getVector(Adafruit_BNO055_WIRE1::VECTOR_GYROSCOPE);
+    int8_t leftTemp = leftBNO.getTemp();
+  }
 
-  imu::Vector<3> rightACC = rightBNO.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
-  imu::Vector<3> rightMAG = rightBNO.getVector(Adafruit_BNO055::VECTOR_MAGNETOMETER);
-  imu::Vector<3> rightGYR = rightBNO.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
-  int8_t rightTemp = rightBNO.getTemp();
-  
+  if(RIGHT){
+    imu::Vector<3> rightACC = rightBNO.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
+    imu::Vector<3> rightMAG = rightBNO.getVector(Adafruit_BNO055::VECTOR_MAGNETOMETER);
+    imu::Vector<3> rightGYR = rightBNO.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
+    int8_t rightTemp = rightBNO.getTemp();
+  }
+
+  if(LEFT){
   Serial.print("L\t"); //identify which sensor skin this is 
    /* Display the floating point data for acceleration*/
   Serial.print(leftACC.x()); //float
@@ -130,7 +149,9 @@ void loop(void)
   Serial.print("\t");
   Serial.print(smaStatus); //integer
   Serial.println("\t");
+  }
 
+  if(RIGHT){
   Serial.print("R\t"); //identify which sensor skin this is 
    /* Display the floating point data for acceleration*/
   Serial.print(rightACC.x()); //float
@@ -172,6 +193,7 @@ void loop(void)
   Serial.print(smaStatus); //integer
   Serial.println("\t");
   delay(5);
+  }
   
   if (stringComplete) {
     smaStatus = inputString.toInt();
@@ -189,7 +211,7 @@ void loop(void)
     SMAflag = false;
   }
   endTime = millis();
-  if((endTime-startTime)>=800 & smaStatus == 1)
+  if((endTime-startTime)>=smaMS & smaStatus == 1)
   {
     digitalWrite(smaPin, LOW);
     Serial.print("SMA ended. Duration: ");
