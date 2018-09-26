@@ -21,7 +21,8 @@ String inputString = "";         // a String to hold incoming data
 bool stringComplete = false;  // whether the string is complete
 bool SMAflag = false;
 int smaPin = 3;
-int smaMS = 700;  //number of milliseconds to send max power to sma
+int smaMS = 1000;  //number of milliseconds to send max power to sma (max 1000)
+int smaMS_TOTAL = 20000; //number of milliseconds total
 
 //toggle these true or false depending what you want to test
 bool LEFT = false;
@@ -214,19 +215,24 @@ void loop(void)
     if(SMAflag)
     {
       startTime = millis();
-      digitalWrite(smaPin, HIGH);
+      analogWrite(smaPin, 120);
       Serial.println("SMA started");
       SMAflag = false;
     }
     endTime = millis();
     if((endTime-startTime)>=smaMS & smaStatus == 1)
     {
+      analogWrite(smaPin, 15);
+      Serial.println("maintaining SMA");
+    } 
+    if((endTime-startTime)>=smaMS_TOTAL & smaStatus == 1)
+    {
       digitalWrite(smaPin, LOW);
       Serial.print("SMA ended. Duration: ");
       Serial.println(endTime-startTime);
       SMAflag = false;
       smaStatus = 0;
-    }  
+    }
   }
   
   //delay(BNO055_SAMPLERATE_DELAY_MS);
