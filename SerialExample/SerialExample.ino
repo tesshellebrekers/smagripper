@@ -4,7 +4,7 @@
 #include <Adafruit_BNO055.h>
 #include <utility/imumaths.h>
 
-#define BNO055_SAMPLERATE_DELAY_MS (100)M
+#define BNO055_SAMPLERATE_DELAY_MS (100)
 
 Adafruit_BNO055 rightBNO = Adafruit_BNO055();
 Adafruit_BNO055_WIRE1 leftBNO = Adafruit_BNO055_WIRE1();
@@ -22,11 +22,13 @@ bool stringComplete = false;  // whether the string is complete
 bool SMAflag = false;
 int smaPin = 3;
 int smaMS = 1000;  //number of milliseconds to send max power to sma (max 1000)
-int smaMS_TOTAL = 20000; //number of milliseconds total
+int smaMS_TOTAL = 5000; //number of milliseconds total
+int maxPower = 200; //out of 255
+int maintainPower = 15; //out of 255
 
 //toggle these true or false depending what you want to test
-bool LEFT = false;
-bool RIGHT = false;
+bool LEFT = true;
+bool RIGHT = true;
 bool SMA = true;
 /**************************************************************************/
 /*
@@ -37,9 +39,13 @@ void setup(void)
 {
   
   Serial.begin(115200); //Serial COM baud rate
- 
-  Serial.println("Orientation Sensor Set-up"); Serial.println("");
   delay(100);
+  
+  Serial.println("Orientation Sensor Set-up"); Serial.println("");
+  digitalWrite(2, LOW);
+  delay(1000);
+  digitalWrite(2, HIGH);
+  delay(1000);
   inputString.reserve(200);
 
   /* Initialise the sensor */
@@ -151,6 +157,7 @@ void loop(void)
   Serial.print("\t");
   Serial.print(smaStatus); //integer
   Serial.println("\t");
+  delay(10);
   }
 
   if(RIGHT){
@@ -200,7 +207,7 @@ void loop(void)
   Serial.print("\t");
   Serial.print(smaStatus); //integer
   Serial.println("\t");
-  delay(5);
+  delay(10);
   }
 
   if(SMA){
@@ -215,14 +222,14 @@ void loop(void)
     if(SMAflag)
     {
       startTime = millis();
-      analogWrite(smaPin, 120);
+      analogWrite(smaPin, maxPower);
       Serial.println("SMA started");
       SMAflag = false;
     }
     endTime = millis();
     if((endTime-startTime)>=smaMS & smaStatus == 1)
     {
-      analogWrite(smaPin, 15);
+      analogWrite(smaPin, maintainPower);
       Serial.println("maintaining SMA");
     } 
     if((endTime-startTime)>=smaMS_TOTAL & smaStatus == 1)
