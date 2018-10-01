@@ -20,15 +20,18 @@ unsigned long duration = 10; // 10 ms
 String inputString = "";         // a String to hold incoming data
 bool stringComplete = false;  // whether the string is complete
 bool SMAflag = false;
+bool SMAstopflag = false;
 int smaPin = 3;
-int smaMS = 1300;  //number of milliseconds to send max power to sma (max 1000)
-int smaMS_TOTAL = 5000; //number of milliseconds total
+int sma_ms_open_full = 1800;  //number of milliseconds to send max power to sma (max 1000)
+int sma_ms_open_partial = 900;
+int current_activation = 0;
+int smaMS_TOTAL = 20000; //number of milliseconds total
 int maxPower = 200; //out of 255
 int maintainPower = 20; //out of 255
 
 //toggle these true or false depending what you want to test
-bool LEFT = false;
-bool RIGHT = false;
+bool LEFT = true;
+bool RIGHT = true;
 bool SMA = true;
 /**************************************************************************/
 /*
@@ -155,7 +158,7 @@ void loop(void)
   Serial.print("\t");
   Serial.print(analogRead(A5)); //integer
   Serial.print("\t");
-  Serial.print(smaStatus); //integer
+  Serial.print(current_activation != 0); //integer
   Serial.println("\t");
   delay(10);
   }
@@ -205,7 +208,7 @@ void loop(void)
   Serial.print("\t");
   Serial.print(analogRead(A0)); //integer
   Serial.print("\t");
-  Serial.print(smaStatus); //integer
+  Serial.print(current_activation != 0); //integer
   Serial.println("\t");
   delay(10);
   }
@@ -216,7 +219,32 @@ void loop(void)
       // clear the string:
       inputString = "";
       stringComplete = false;
-      if(smaStatus == 1){SMAflag = true;}
+      if(smaStatus == 1)
+      {
+        if (current_activation == 0){
+          SMAflag = true;
+          current_activation = sma_ms_open_full;
+        }
+        else
+        {
+          Serial.println("Not taking additional activation, because gripper is already active.");
+        }
+      }
+      if(smaStatus == 2)
+      {
+        if (current_activation == 0){
+          SMAflag = true;
+          current_activation = sma_ms_open_partial;
+        }
+        else
+        {
+          Serial.println("Not taking additional activation, because gripper is already active.");
+        }
+      }
+      if(smaStatus == 0)
+      {
+        SMAstopflag = true;
+      }
     }
 
     if(SMAflag)
@@ -227,17 +255,22 @@ void loop(void)
       SMAflag = false;
     }
     endTime = millis();
-    if((endTime-startTime)>=smaMS & smaStatus == 1)
+    if(current_activation > 0 && (endTime-startTime)>=current_activation)
     {
       analogWrite(smaPin, maintainPower);
       Serial.println("maintaining SMA");
     } 
-    if((endTime-startTime)>=smaMS_TOTAL & smaStatus == 1)
+    if(current_activation > 0 && ((endTime-startTime)>=smaMS_TOTAL || SMAstopflag == true))
     {
       digitalWrite(smaPin, LOW);
       Serial.print("SMA ended. Duration: ");
       Serial.println(endTime-startTime);
       SMAflag = false;
+      if (SMAstopflag == true)
+      {
+        SMAstopflag = false;
+      }
+      current_activation = 0;
       smaStatus = 0;
     }
   }
