@@ -34,7 +34,7 @@ int maintainPower = 20; //out of 255
 
 //toggle these true or false depending what you want to test
 bool LEFT = true;
-bool RIGHT = false;
+bool RIGHT = true;
 bool SMA = true;
 /**************************************************************************/
 /*
@@ -91,7 +91,6 @@ void setup(void)
 
   left_last_send_time = millis();
   right_last_send_time = millis();
-  
 }
 
 /**************************************************************************/
@@ -225,6 +224,19 @@ void loop(void)
   delay(10);
   }
 
+  while (Serial.available()) {
+    // get the new byte:
+    char inChar = (char)Serial.read();
+    // add it to the inputString:
+    inputString += inChar;
+    // if the incoming character is a newline, set a flag so the main loop can
+    // do something about it:
+    if (inChar == '\n') {
+      stringComplete = true;
+    }
+  }
+  
+
   if(SMA){
     if (stringComplete) {
       smaStatus = inputString.toInt();
@@ -263,7 +275,7 @@ void loop(void)
     {
       startTime = millis();
       analogWrite(smaPin, maxPower);
-      Serial.println("SMA started");
+      //Serial.println("SMA started");
       SMAflag = false;
     }
     endTime = millis();
@@ -275,8 +287,8 @@ void loop(void)
     if(current_activation > 0 && ((endTime-startTime)>=smaMS_TOTAL || SMAstopflag == true))
     {
       digitalWrite(smaPin, LOW);
-      Serial.print("SMA ended. Duration: ");
-      Serial.println(endTime-startTime);
+      //Serial.print("SMA ended. Duration: ");
+      //Serial.println(endTime-startTime);
       SMAflag = false;
       if (SMAstopflag == true)
       {
@@ -289,18 +301,4 @@ void loop(void)
   
   //delay(BNO055_SAMPLERATE_DELAY_MS);
   
-}
-
-void serialEvent() {
-  while (Serial.available()) {
-    // get the new byte:
-    char inChar = (char)Serial.read();
-    // add it to the inputString:
-    inputString += inChar;
-    // if the incoming character is a newline, set a flag so the main loop can
-    // do something about it:
-    if (inChar == '\n') {
-      stringComplete = true;
-    }
-  }
 }

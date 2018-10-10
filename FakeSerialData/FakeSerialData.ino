@@ -10,6 +10,9 @@ int8_t rightTemp;
 int8_t leftTemp;
 int8_t smaStatus;
 
+unsigned long left_last_send_time;
+unsigned long right_last_send_time;
+
 unsigned long startTime;
 unsigned long endTime;
 unsigned long duration = 10; // 10 ms
@@ -55,6 +58,9 @@ void setup(void)
     digitalWrite(smaPin, LOW);
   }
   Serial.println("Ready");
+  
+  left_last_send_time = millis();
+  right_last_send_time = millis();
   
 }
 
@@ -140,8 +146,12 @@ void loop(void)
   Serial.print("\t");
   Serial.print(711); //integer
   Serial.print("\t");
-  Serial.print(smaStatus); //integer
-  Serial.println("\t");
+  Serial.print(smaStatus != 0); //bool
+  Serial.print("\t");
+  unsigned int current_time = millis(); //integer
+  Serial.println(current_time - left_last_send_time);
+  left_last_send_time = current_time;
+  delay(10);
   }
 
   if(RIGHT){
@@ -200,9 +210,12 @@ void loop(void)
   Serial.print("\t");
   Serial.print(677); //integer
   Serial.print("\t");
-  Serial.print(smaStatus); //integer
-  Serial.println("\t");
-  delay(5);
+  Serial.print(smaStatus != 0); //bool
+  Serial.print("\t");
+  unsigned int current_time = millis();
+  Serial.println(current_time - right_last_send_time);
+  right_last_send_time = current_time; //integer
+  delay(10);
   }
 
   if(SMA){
