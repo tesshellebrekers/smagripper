@@ -224,6 +224,8 @@ void loop(void)
   right_last_send_time = current_time; //integer
   delay(10);
   }
+  
+  SMAstopflag = false;
 
   if(SMA){
     if (stringComplete) {

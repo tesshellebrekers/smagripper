@@ -33,8 +33,8 @@ int maxPower = 200; //out of 255
 int maintainPower = 20; //out of 255
 
 //toggle these true or false depending what you want to test
-bool LEFT = true;
-bool RIGHT = true;
+bool LEFT = false;
+bool RIGHT = false;
 bool SMA = true;
 /**************************************************************************/
 /*
@@ -235,6 +235,9 @@ void loop(void)
       stringComplete = true;
     }
   }
+
+  
+  SMAstopflag = false;
   
 
   if(SMA){
