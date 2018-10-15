@@ -19,6 +19,7 @@ unsigned long duration = 10; // 10 ms
 
 String inputString = "";         // a String to hold incoming data
 bool stringComplete = false;  // whether the string is complete
+
 bool SMAflag = false;
 int smaPin = 3;
 int smaMS = 1300;  //number of milliseconds to send max power to sma (max 1000)
@@ -27,7 +28,7 @@ int maxPower = 200; //out of 255
 int maintainPower = 20; //out of 255
 
 //toggle these true or false depending what you want to test
-bool LEFT = true;
+bool LEFT = false;
 bool RIGHT = false;
 bool SMA = true;
 /**************************************************************************/
@@ -47,6 +48,7 @@ void setup(void)
   delay(1000);
   
   Serial.begin(115200); //Serial COM baud rate
+  SerialUSB.begin(9600);
   delay(100);
   
   Serial.println("Orientation Sensor Set-up"); Serial.println("");
@@ -249,7 +251,23 @@ void loop(void)
       smaStatus = 0;
     }
   }
-  
+  while (SerialUSB.available()) {
+    // get the new byte:
+    char inChar = (char)SerialUSB.read();
+    // add it to the inputString:
+    inputString += inChar;
+    // if the incoming character is a newline, set a flag so the main loop can
+    // do something about it:
+    if (inChar == '\n') {
+      stringComplete = true;
+    }
+  }
+  if (stringComplete) {
+    SerialUSB.println(inputString);
+    // clear the string:
+    inputString = "";
+    stringComplete = false;
+  }
   //delay(BNO055_SAMPLERATE_DELAY_MS);
   
 }
