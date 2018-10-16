@@ -33,8 +33,8 @@ int maxPower = 200; //out of 255
 int maintainPower = 20; //out of 255
 
 //toggle these true or false depending what you want to test
-bool LEFT = false;
-bool RIGHT = false;
+bool LEFT = true;
+bool RIGHT = true;
 bool SMA = true;
 /**************************************************************************/
 /*
@@ -44,7 +44,17 @@ bool SMA = true;
 void setup(void)
 {
   
+  pinMode(11, OUTPUT);
+  pinMode(10, OUTPUT);
+  digitalWrite(11, LOW);
+  digitalWrite(10, LOW);
+  delay(2000);
+  digitalWrite(11, HIGH);
+  digitalWrite(10, HIGH);
+  delay(1000);
+  
   Serial.begin(115200); //Serial COM baud rate
+  SerialUSB.begin(9600);
   delay(100);
   
   Serial.println("Orientation Sensor Set-up"); Serial.println("");
@@ -224,9 +234,10 @@ void loop(void)
   delay(10);
   }
 
-  while (Serial.available()) {
+  
+  while (SerialUSB.available()) {
     // get the new byte:
-    char inChar = (char)Serial.read();
+    char inChar = (char)SerialUSB.read();
     // add it to the inputString:
     inputString += inChar;
     // if the incoming character is a newline, set a flag so the main loop can
