@@ -43,6 +43,14 @@ bool SMA = true;
 /**************************************************************************/
 void setup(void)
 {
+  pinMode(11, OUTPUT);
+  pinMode(10, OUTPUT);
+  digitalWrite(11, LOW);
+  digitalWrite(10, LOW);
+  delay(2000);
+  digitalWrite(11, HIGH);
+  digitalWrite(10, HIGH);
+  delay(1000);
   
   Serial.begin(115200); //Serial COM baud rate
   delay(100);
@@ -224,6 +232,19 @@ void loop(void)
   right_last_send_time = current_time; //integer
   delay(10);
   }
+
+  while (SerialUSB.available()) {
+    // get the new byte:
+    char inChar = (char)SerialUSB.read();
+    // add it to the inputString:
+    inputString += inChar;
+    // if the incoming character is a newline, set a flag so the main loop can
+    // do something about it:
+    if (inChar == '\n') {
+      stringComplete = true;
+    }
+  }
+  
   
   SMAstopflag = false;
 
@@ -291,18 +312,4 @@ void loop(void)
   
   //delay(BNO055_SAMPLERATE_DELAY_MS);
   
-}
-
-void serialEvent() {
-  while (Serial.available()) {
-    // get the new byte:
-    char inChar = (char)Serial.read();
-    // add it to the inputString:
-    inputString += inChar;
-    // if the incoming character is a newline, set a flag so the main loop can
-    // do something about it:
-    if (inChar == '\n') {
-      stringComplete = true;
-    }
-  }
 }
