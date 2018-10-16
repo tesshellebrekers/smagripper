@@ -262,26 +262,26 @@ void loop(void)
       stringComplete = true;
     }
   }
-  if (stringComplete) {
-    SerialUSB.println(inputString);
-    // clear the string:
-    inputString = "";
-    stringComplete = false;
-  }
+//  if (stringComplete) {
+//    SerialUSB.println(inputString);
+//    // clear the string:
+//    inputString = "";
+//    stringComplete = false;
+//  }
   //delay(BNO055_SAMPLERATE_DELAY_MS);
   
 }
 
 void serialEvent() {
-  while (Serial.available()) {
-    // get the new byte:
-    char inChar = (char)Serial.read();
-    // add it to the inputString:
-    inputString += inChar;
-    // if the incoming character is a newline, set a flag so the main loop can
-    // do something about it:
-    if (inChar == '\n') {
-      stringComplete = true;
-    }
-  }
+//  while (Serial.available()) {
+//    // get the new byte:
+//    char inChar = (char)Serial.read();
+//    // add it to the inputString:
+//    inputString += inChar;
+//    // if the incoming character is a newline, set a flag so the main loop can
+//    // do something about it:
+//    if (inChar == '\n') {
+//      stringComplete = true;
+//    }
+//  }
 }
