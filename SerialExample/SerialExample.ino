@@ -38,15 +38,7 @@ bool SMA = true;
 /**************************************************************************/
 void setup(void)
 {
-  pinMode(11, OUTPUT);
-  pinMode(10, OUTPUT);
-  digitalWrite(11, LOW);
-  digitalWrite(10, LOW);
-  delay(2000);
-  digitalWrite(11, HIGH);
-  digitalWrite(10, HIGH);
-  delay(1000);
-  
+
   Serial.begin(115200); //Serial COM baud rate
   SerialUSB.begin(9600);
   delay(100);
@@ -58,6 +50,7 @@ void setup(void)
   delay(1000);
   inputString.reserve(200);
 
+  resetIMUs();
   /* Initialise the sensor */
   if(LEFT){
     if(!leftBNO.begin())
@@ -285,3 +278,17 @@ void serialEvent() {
 //    }
 //  }
 }
+
+void resetIMUs() {
+  
+  pinMode(11, OUTPUT);
+  pinMode(10, OUTPUT);
+  digitalWrite(11, LOW);
+  digitalWrite(10, LOW);
+  delay(2000);
+  digitalWrite(11, HIGH);
+  digitalWrite(10, HIGH);
+  delay(1000);
+
+}
+
