@@ -30,7 +30,9 @@ int sma_ms_open_partial = 900;
 int current_activation = 0;
 int smaMS_TOTAL = 20000; //number of milliseconds total
 int maxPower = 200; //out of 255
-int maintainPower = 20; //out of 255
+int maintainPowerLow = 25; //out of 255
+int maintainPowerHigh = 55; //out of 255
+int currentMaintainPower = 20;
 
 //toggle these true or false depending what you want to test
 bool LEFT = true;
@@ -262,6 +264,7 @@ void loop(void)
         if (current_activation == 0){
           SMAflag = true;
           current_activation = sma_ms_open_full;
+          currentMaintainPower = maintainPowerHigh;
         }
         else
         {
@@ -273,6 +276,7 @@ void loop(void)
         if (current_activation == 0){
           SMAflag = true;
           current_activation = sma_ms_open_partial;
+          currentMaintainPower = maintainPowerLow;
         }
         else
         {
@@ -295,7 +299,7 @@ void loop(void)
     endTime = millis();
     if(current_activation > 0 && (endTime-startTime)>=current_activation)
     {
-      analogWrite(smaPin, maintainPower);
+      analogWrite(smaPin, currentMaintainPower);
       //Serial.println("maintaining SMA");
     } 
     if(current_activation > 0 && ((endTime-startTime)>=smaMS_TOTAL || SMAstopflag == true))
