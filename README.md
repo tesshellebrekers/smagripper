@@ -5,5 +5,4 @@ Documents/Arduino/libraries/Adafruit_BNO055 by just pasting them there.
 
 FakeSerialData provides fake Values for IMU and Strain sensors.
 
-SerialExampleOnfOff enables closing the gripper when the Arduino 
-receives a 0.
+SendSensorDataAndActuateSMA contains the code that should actually be used for data collection.
