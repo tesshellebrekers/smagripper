@@ -194,9 +194,9 @@ void loop(void)
   /* Display the floating point data for magnetometer*/
   Serial.print(rightMAG.x()); //float
   Serial.print("\t");
-  Serial.print(rightMAG.x()); //float
+  Serial.print(rightMAG.y()); //float
   Serial.print("\t");
-  Serial.print(rightMAG.x()); //float
+  Serial.print(rightMAG.z()); //float
   Serial.print("\t");
 
   /* Display the floating point data for gyroscope*/
